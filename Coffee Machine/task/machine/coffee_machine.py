@@ -11,15 +11,21 @@ money = 550
 
 
 def menu():
-    option = input("Write action (buy, fill, take): \n")
-    if option == "fill":
-        add_supplies()
-    elif option == "buy":
-        buy_drink()
-    elif option == "take":
-        withdrawal_money()
-    else:
-        print("Invalid input")
+    while True:
+        option = input("Write action (buy, fill, take, remaining, exit): \n")
+        if option == "fill":
+            add_supplies()
+        elif option == "buy":
+            buy_drink()
+        elif option == "take":
+            withdrawal_money()
+        elif option == "remaining":
+            display_machine_supplies()
+        elif option == "exit":
+            return
+        else:
+            print("Invalid input")
+        print()
 
 
 def display_machine_supplies():
@@ -28,7 +34,7 @@ def display_machine_supplies():
           + f"{milk_ml} ml of milk\n"
           + f"{bean_grams} g of coffee beans\n"
           + f"{cups} disposable cups\n"
-          + f"${money} of money\n")
+          + f"${money} of money")
 
 
 def add_supplies():
@@ -46,27 +52,52 @@ def add_supplies():
     cups += int(input())
 
 
+def has_enough_resources(coffee_type):
+    global water_ml
+    global milk_ml
+    global bean_grams
+    global cups
+    short_supplies = list()
+    if coffee_type.water.value > water_ml:
+        short_supplies.append("water")
+    if coffee_type.milk.value > milk_ml:
+        short_supplies.append("milk")
+    if coffee_type.beans.value > milk_ml:
+        short_supplies.append("beans")
+    if cups == 0:
+        short_supplies.append("cups")
+    if len(short_supplies) == 0:
+        return True
+    else:
+        print(f"Sorry, not enough {', '.join(short_supplies)}!")
+        return False
+
+
 def buy_drink():
     global water_ml
     global milk_ml
     global bean_grams
     global cups
     global money
-    option = input("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino\n")
+    option = input("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: \n")
     if option == "1":
         coffee_type = drink.Espresso
     elif option == "2":
         coffee_type = drink.Latte
     elif option == "3":
         coffee_type = drink.Cappuccino
+    elif option == "back":
+        return
     else:
         print("Invalid input")
         return
-    water_ml -= coffee_type.water.value
-    milk_ml -= coffee_type.milk.value
-    bean_grams -= coffee_type.beans.value
-    cups -= 1
-    money += coffee_type.cost.value
+    if has_enough_resources(coffee_type):
+        print("I have enough resources, making you a coffee!")
+        water_ml -= coffee_type.water.value
+        milk_ml -= coffee_type.milk.value
+        bean_grams -= coffee_type.beans.value
+        cups -= 1
+        money += coffee_type.cost.value
 
 
 def withdrawal_money():
@@ -75,7 +106,4 @@ def withdrawal_money():
     money = 0
 
 
-display_machine_supplies()
 menu()
-print()
-display_machine_supplies()
